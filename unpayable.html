@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unpayable — A Spoken Word</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #1a1008;
+    --parchment: #f5efe3;
+    --gold: #c9882a;
+    --rust: #8b3a1a;
+    --cream: #fdf8ef;
+    --muted: #6b5c45;
+    --accent: #d4a853;
+  }
+
+  body {
+    background-color: var(--ink);
+    color: var(--parchment);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.4;
+  }
+
+  .stage {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+    position: relative;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 72px;
+    opacity: 0;
+    animation: rise 1.2s ease forwards 0.3s;
+  }
+
+  .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.2rem, 8vw, 6rem);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.9;
+    color: var(--parchment);
+    letter-spacing: -0.02em;
+  }
+
+  h1 span {
+    color: var(--gold);
+    display: block;
+  }
+
+  .subtitle {
+    margin-top: 18px;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 56px 0 48px;
+    opacity: 0;
+    animation: rise 1s ease forwards 0.8s;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold));
+  }
+
+  .divider::after {
+    background: linear-gradient(to left, transparent, var(--gold));
+  }
+
+  .divider-symbol { color: var(--gold); font-size: 1.1rem; }
+
+  .poem {
+    opacity: 0;
+    animation: rise 1s ease forwards 1.1s;
+  }
+
+  .stanza {
+    margin-bottom: 56px;
+    position: relative;
+  }
+
+  .stanza-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--rust);
+    letter-spacing: 0.2em;
+    margin-bottom: 14px;
+    opacity: 0.7;
+  }
+
+  p.line {
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    line-height: 1.9;
+    color: var(--parchment);
+    font-weight: 300;
+    margin-bottom: 2px;
+  }
+
+  p.line.bold {
+    font-weight: 600;
+    font-size: clamp(1.15rem, 2.8vw, 1.4rem);
+  }
+
+  p.line.italic {
+    font-style: italic;
+    color: #d4c4a8;
+  }
+
+  p.line.shout {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3.5vw, 1.75rem);
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+  }
+
+  p.line.whisper {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--muted);
+    padding-left: 24px;
+    border-left: 2px solid var(--rust);
+    margin: 10px 0;
+  }
+
+  p.line.humor {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    padding: 10px 16px;
+    border-left: 3px solid var(--accent);
+    background: rgba(201, 136, 42, 0.07);
+    border-radius: 0 4px 4px 0;
+    margin: 10px 0;
+    line-height: 1.6;
+  }
+
+  p.line.grace {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.15rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: #e8d9be;
+    border-bottom: 1px solid rgba(201,136,42,0.25);
+    padding-bottom: 6px;
+    margin: 6px 0;
+  }
+
+  .refrain {
+    background: linear-gradient(135deg, rgba(201, 136, 42, 0.09), rgba(139, 58, 26, 0.07));
+    border: 1px solid rgba(201, 136, 42, 0.22);
+    border-radius: 2px;
+    padding: 32px 36px;
+    margin: 60px 0;
+    position: relative;
+  }
+
+  .refrain::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 7rem;
+    color: var(--gold);
+    opacity: 0.12;
+    position: absolute;
+    top: -20px;
+    left: 16px;
+    line-height: 1;
+  }
+
+  .refrain p.line {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+    line-height: 1.9;
+    color: #e8d9be;
+  }
+
+  .grace-box {
+    background: linear-gradient(135deg, rgba(139,58,26,0.18), rgba(201,136,42,0.10));
+    border: 1px solid rgba(201, 136, 42, 0.35);
+    border-left: 4px solid var(--gold);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin: 60px 0;
+  }
+
+  .grace-box .grace-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .grace-box p.line {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.8vw, 1.35rem);
+    line-height: 1.9;
+    color: #eddfc4;
+  }
+
+  .grace-box p.line.bold {
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  .closing {
+    text-align: center;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid rgba(201, 136, 42, 0.2);
+  }
+
+  .closing .line {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 3.2vw, 1.7rem);
+    font-style: italic;
+    font-weight: 700;
+    color: var(--parchment);
+    line-height: 1.7;
+  }
+
+  .closing .line.final {
+    font-size: clamp(1.5rem, 4.5vw, 2.2rem);
+    color: var(--gold);
+    display: block;
+    margin-top: 16px;
+  }
+
+  .author-note {
+    margin-top: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(139,58,26,0.15), transparent 70%);
+    top: 10%; right: -100px;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+
+  .glow-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(201,136,42,0.1), transparent 70%);
+    bottom: 20%; left: -80px;
+    animation: drift 15s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 40px); }
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stage > * { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="stage">
+
+  <div class="header">
+    <div class="label">A Spoken Word</div>
+    <h1>UN<span>PAYABLE</span></h1>
+    <div class="subtitle">On the grace we received — and the grace we owe</div>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="poem">
+
+    <!-- I -->
+    <div class="stanza">
+      <div class="stanza-number">I. THE ACCOUNT</div>
+      <p class="line">Let me tell you about a debt.</p>
+      <p class="line italic">Not a student loan — though I see you flinch —</p>
+      <p class="line humor">// (Relax. We're not doing fees today. That's a different sermon.)</p>
+      <p class="line">I mean a debt so deep, so wide, so tall,</p>
+      <p class="line">that every bank on earth would drop the call.</p>
+      <p class="line">The kind that breaks the ledger, bends the pen,</p>
+      <p class="line italic">and leaves the accountant switching careers — again.</p>
+      <p class="line">A debt that was yours. And mine.</p>
+      <p class="line bold">Ours. All of ours. Every single line.</p>
+    </div>
+
+    <!-- II -->
+    <div class="stanza">
+      <div class="stanza-number">II. THE WEIGHT</div>
+      <p class="line">We owed a death.</p>
+      <p class="line">Not a metaphor — an actual, final breath.</p>
+      <p class="line">Every lie whispered soft in the dark,</p>
+      <p class="line">every prayer forgotten the moment you got signal bars.</p>
+      <p class="line humor">// (You literally said "God if you get me out of this exam—" and then ghosted Him. He sees your read receipts.)</p>
+      <p class="line">Every backstab dressed up as a joke,</p>
+      <p class="line">every promise made and left to choke.</p>
+      <p class="line bold">Stacked. Tallied. Owed.</p>
+      <p class="line">And the only currency that heaven would take</p>
+      <p class="line shout">was blood — sinless, spotless, perfect blood.</p>
+      <p class="line italic">Nothing less. Nothing else. No substitute.</p>
+    </div>
+
+    <!-- III -->
+    <div class="stanza">
+      <div class="stanza-number">III. THE PAYMENT</div>
+      <p class="line">And somehow — somehow —</p>
+      <p class="line">before we could even spell repentance,</p>
+      <p class="line">before we had accumulated the full audacity</p>
+      <p class="line">of everything we'd eventually do,</p>
+      <p class="line bold">He paid it.</p>
+      <p class="line italic">Walked to a hill outside Jerusalem.</p>
+      <p class="line italic">Stretched His arms wide — not like a man being crucified,</p>
+      <p class="line italic">but like a father opening a door.</p>
+      <p class="line">And bled.</p>
+      <p class="line">Not reluctantly. Not with conditions.</p>
+      <p class="line shout">Deliberately. Completely. For you.</p>
+      <p class="line">Romans 5:8 —</p>
+      <p class="line italic">while we were still sinners,</p>
+      <p class="line italic">still neck deep, still smelling like the debt,</p>
+      <p class="line italic">still refusing to make eye contact with the sky —</p>
+      <p class="line shout">Christ died for us.</p>
+    </div>
+
+    <!-- REFRAIN -->
+    <div class="refrain">
+      <p class="line">Not after we cleaned up.</p>
+      <p class="line">Not after we got ourselves together.</p>
+      <p class="line">Not after we stopped doing that one thing</p>
+      <p class="line italic">we all know we keep doing.</p>
+      <p class="line bold">Before. We. Deserved. It.</p>
+      <p class="line">That is not a small grace.</p>
+      <p class="line">That is an ocean given to people who were drowning in a puddle of their own making</p>
+      <p class="line bold">— and calling it a lifestyle.</p>
+    </div>
+
+    <!-- IV -->
+    <div class="stanza">
+      <div class="stanza-number">IV. THE IRONY</div>
+      <p class="line">So here is where I need you to stay with me.</p>
+      <p class="line">Because this is where it gets uncomfortable,</p>
+      <p class="line italic">and I say that with love,</p>
+      <p class="line italic">and also with the full awareness that you cannot leave</p>
+      <p class="line humor">// (because Pastor is standing by the exit. Bless him.)</p>
+      <p class="line">We — the forgiven, the redeemed, the washed —</p>
+      <p class="line">have become the least forgiving people on campus.</p>
+      <p class="line">We carry grudges like they're course units:</p>
+      <p class="line italic">accumulating, compounding, and somehow never graduating.</p>
+      <p class="line humor">// (Six semesters. Still enrolled in Bitterness 101. With distinction.)</p>
+      <p class="line">We sit three tables away from someone who wronged us,</p>
+      <p class="line">rehearsing the whole argument in our heads</p>
+      <p class="line italic">while the rice goes cold</p>
+      <p class="line humor">// (jollof rice, no less — and it deserves better than to be background noise to your unforgiveness.)</p>
+      <p class="line bold">We let bitterness rent space in our chest,</p>
+      <p class="line bold">furnish it, hang curtains, call it home —</p>
+      <p class="line">and wonder why we can't breathe.</p>
+    </div>
+
+    <!-- V -->
+    <div class="stanza">
+      <div class="stanza-number">V. THE MATHEMATICS</div>
+      <p class="line">Matthew 18. Let's do the math.</p>
+      <p class="line">Ten thousand talents — that's the debt on your behalf.</p>
+      <p class="line">Millions upon millions — cancelled, cleared, erased.</p>
+      <p class="line italic">Wiped completely. Not deferred. Not restructured. Gone.</p>
+      <p class="line">And then — and then —</p>
+      <p class="line">you walked outside and grabbed your friend by the throat</p>
+      <p class="line bold">over a hundred denarii — a few week's wages —</p>
+      <p class="line bold">and said: "Pay me. Every. Last. Coin."</p>
+      <p class="line whisper">That's us. Most Fridays. In the group chat.</p>
+      <p class="line">Your friend's offence — as real as it is —</p>
+      <p class="line">is a decimal point</p>
+      <p class="line">next to the mountain that was moved for you.</p>
+      <p class="line shout">And you know it.</p>
+    </div>
+
+    <!-- GRACE BOX -->
+    <div class="grace-box">
+      <div class="grace-label">The Standard — Ephesians 4:32</div>
+      <p class="line">Be kind to one another,</p>
+      <p class="line">tenderhearted,</p>
+      <p class="line italic">forgiving one another —</p>
+      <p class="line bold">as God in Christ forgave you.</p>
+      <p class="line">Not as the world forgives — conditionally, barely, with receipts.</p>
+      <p class="line italic">As Christ forgave you.</p>
+      <p class="line bold">That is the standard. That is the measure.</p>
+      <p class="line">Not the minimum viable forgiveness.</p>
+      <p class="line shout">The same grace. The same depth. The same love.</p>
+    </div>
+
+    <!-- VI -->
+    <div class="stanza">
+      <div class="stanza-number">VI. THE MIRROR</div>
+      <p class="line">See, grace was never meant to stop with you.</p>
+      <p class="line">It was meant to flow through you — unstoppable, untameable, true.</p>
+      <p class="line">You were not the end of the river.</p>
+      <p class="line italic">You were always meant to be the channel.</p>
+      <p class="line">When Christ said "forgive us our trespasses</p>
+      <p class="line italic">as we forgive those who trespass against us" —</p>
+      <p class="line">that wasn't poetry.</p>
+      <p class="line bold">That was a mirror.</p>
+      <p class="line">He was saying: the grace you've tasted,</p>
+      <p class="line">the grace that found you at your worst and called you worthy —</p>
+      <p class="line shout">give that away. Give it recklessly. Give it first.</p>
+      <p class="line humor">// (Before they apologise. Before they change. Before they even know they hurt you. Yes, I said what I said.)</p>
+    </div>
+
+    <!-- VII -->
+    <div class="stanza">
+      <div class="stanza-number">VII. THE BROTHER</div>
+      <p class="line">You want to see it done? Let's talk about Joseph.</p>
+      <p class="line">Sold by his own brothers — not strangers, not rivals —</p>
+      <p class="line italic">the ones who ate at his father's table,</p>
+      <p class="line">and decided a coat of many colors</p>
+      <p class="line">was worth less than twenty pieces of silver.</p>
+      <p class="line humor">// (Genesis 37. Family group chat, gone very, very wrong.)</p>
+      <p class="line">Seventeen years old. Sold. Enslaved. Forgotten.</p>
+      <p class="line">Falsely accused. Thrown in prison for a crime he didn't commit.</p>
+      <p class="line">Helped a cellmate remember a dream —</p>
+      <p class="line italic">and the cellmate forgot him. For two years.</p>
+      <p class="line humor">// (Genesis 40:23. Even the guy he helped ghosted him. He knows about read receipts too.)</p>
+      <p class="line">Thirteen years between the pit and the palace.</p>
+      <p class="line">Thirteen years is enough time</p>
+      <p class="line">to build a case, rehearse the speech,</p>
+      <p class="line italic">plan exactly what you'll say</p>
+      <p class="line italic">the day you finally have the power.</p>
+      <p class="line bold">And when that day came — brothers bowing, begging for bread,</p>
+      <p class="line bold">not even recognising the face they sold —</p>
+      <p class="line">he didn't make them sweat.</p>
+      <p class="line">No apology required first.</p>
+      <p class="line">No groveling. No probation period.</p>
+      <p class="line shout">"You meant evil against me, but God meant it for good."</p>
+      <p class="line whisper">Genesis 50:20</p>
+      <p class="line">Just a man who'd already put the debt down</p>
+      <p class="line bold">long before they ever asked him to.</p>
+      <p class="line italic">That's not weakness.</p>
+      <p class="line italic">That's a man who knew exactly</p>
+      <p class="line italic">how much he'd already been forgiven for.</p>
+    </div>
+
+    <!-- VIII -->
+    <div class="stanza">
+      <div class="stanza-number">VIII. THE HARD PART</div>
+      <p class="line">Now — I know.</p>
+      <p class="line italic">I know what they did was real.</p>
+      <p class="line italic">I know the wound is not aesthetic.</p>
+      <p class="line italic">I know forgiveness is not the same as pretending.</p>
+      <p class="line">Forgiveness doesn't mean what happened was fine.</p>
+      <p class="line">It means you're no longer letting their wrong</p>
+      <p class="line bold">define the rest of your time.</p>
+      <p class="line">It means you open the fist.</p>
+      <p class="line">You release the record.</p>
+      <p class="line">You stop rehearsing the case</p>
+      <p class="line italic">and you show them the same grace</p>
+      <p class="line italic">that showed up at your door at your darkest place,</p>
+      <p class="line italic">looked you dead in the eyes, and said —</p>
+      <p class="line shout">"I choose you. Still. Anyway. Always."</p>
+      <p class="line">Because bitterness is a chain that you forge link by link,</p>
+      <p class="line">thinking it holds them —</p>
+      <p class="line bold">but you're the one who can't swim because you won't let it sink.</p>
+      <p class="line humor">// (Read that again. Slowly. I'll wait. Take your time.)</p>
+    </div>
+
+    <!-- IX -->
+    <div class="stanza">
+      <div class="stanza-number">IX. THE CALL</div>
+      <p class="line">So I'm asking you today — on this campus,</p>
+      <p class="line">in this hall, in this season —</p>
+      <p class="line">to become dangerous with grace.</p>
+      <p class="line italic">Unreasonably forgiving.</p>
+      <p class="line italic">Uncomfortably generous with mercy.</p>
+      <p class="line italic">The kind of person people look at and say —</p>
+      <p class="line humor">// ("Wait — they hurt you like THAT and you still…?" Yes. Yes they did. And watch.)</p>
+      <p class="line">Because that is the testimony.</p>
+      <p class="line">Not that you were never wronged,</p>
+      <p class="line bold">but that you forgave the way you were forgiven —</p>
+      <p class="line bold">wild, undeserved, and strong.</p>
+      <p class="line">Let go because you were let go.</p>
+      <p class="line">Show grace because grace found you low.</p>
+      <p class="line">Extend mercy because mercy paid what you owe.</p>
+      <p class="line shout">Give what was given. Flow where it flows.</p>
+    </div>
+
+    <!-- CLOSING -->
+    <div class="closing">
+      <p class="line">The debt was real.</p>
+      <p class="line">The cross was real.</p>
+      <p class="line">The grace that cancelled everything you owed —</p>
+      <p class="line italic">that was real.</p>
+      <br>
+      <p class="line">Now let it be real in how you treat the person</p>
+      <p class="line">sitting three tables away.</p>
+      <br>
+      <p class="line final">The same grace. Pass it on.</p>
+      <div class="author-note">— Unpayable · A Spoken Word for the Campus · Selah</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
